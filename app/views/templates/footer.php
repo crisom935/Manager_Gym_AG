@@ -16,8 +16,10 @@
                     <ul class="list-unstyled small mb-3">
                         <li class="mb-2"><a href="/proyectos/ClientManager/index.php">Inicio</a></li>
                         <li class="mb-2"><a href="/proyectos/ClientManager/app/views/main/tabla_clientes.php">Inscripciones</a></li>
+                        <?php if (isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'administrador'): ?>
                         <li class="mb-2"><a href="/proyectos/ClientManager/app/views/reports/index.php">Reportes</a></li>
-                    </ul>
+                        <?php endif; ?>
+                        </ul>
                     
                     <button onclick="history.back()" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
                         <i class="bi bi-arrow-left me-1"></i> Regresar

@@ -34,7 +34,12 @@
                 
                 <li class="nav-item"><a class="nav-link" href="/proyectos/ClientManager/index.php">Inicio</a></li>
                 
-                <?php if (isset($_SESSION['user_id'])): ?>
+                <?php 
+                // Asegurar que la variable exista para evitar errores
+                $rol_usuario = $_SESSION['user_rol'] ?? ''; 
+                
+                if (isset($_SESSION['user_id'])): 
+                ?>
                     
                     <li class="nav-item">
                         <a class="nav-link" href="/proyectos/ClientManager/app/views/main/tabla_clientes.php">
@@ -43,22 +48,23 @@
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link" href="/proyectos/ClientManager/app/views/inventory/index.php">
+                            <i class="bi bi-box-seam me-1"></i> Inventario
+                        </a>
+                    </li>
+                    
+                    <?php if ($rol_usuario === 'administrador'): ?>
+                    <li class="nav-item">
                         <a class="nav-link" href="/proyectos/ClientManager/app/views/reports/index.php">
                             <i class="bi bi-graph-up-arrow me-1"></i> Reportes
                         </a>
                     </li>
-
                     <li class="nav-item">
-                        <a class="nav-link text-white-50" href="/proyectos/ClientManager/app/views/inventory/index.php" title="Próximamente">
-                            <i class="bi bi-box-seam me-1"></i> Inventario
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link text-white-50" href="/proyectos/ClientManager/app/views/directory/index.php" title="Próximamente">
+                        <a class="nav-link" href="/proyectos/ClientManager/app/views/directory/index.php">
                             <i class="bi bi-person-vcard me-1"></i> Directorio
                         </a>
                     </li>
+                    <?php endif; ?>
                     
                     <li class="nav-item border-start border-secondary mx-2 d-none d-lg-block" style="height: 25px;"></li>
 
@@ -68,16 +74,22 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                             <li><a class="dropdown-item" href="/proyectos/ClientManager/app/views/main/dashboard.php">Dashboard</a></li>
-                        <li>
-                        <a class="dropdown-item" href="/proyectos/ClientManager/app/views/session/register.php">
-                            <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
-                        </a>
-                        </li>
+                            
+                            <?php if ($rol_usuario === 'administrador'): ?>
+                            <li>
+                            <a class="dropdown-item" href="/proyectos/ClientManager/app/views/session/register.php">
+                                <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
+                            </a>
+                            </li>
+                            <?php endif; ?>
+
                             <li>
                             <a class="dropdown-item text-danger" href="#" onclick="confirmarSalida(event)">
                             <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
-                        </a>
-                        </li>
+                            </a>
+                            </li>
+                        </ul>
+                    </li>
 
                 <?php else: ?>
                     <li class="nav-item border-start border-secondary mx-2 d-none d-lg-block"></li> 

@@ -50,6 +50,11 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
         </div>
     </div>
 
+    <?php 
+    // Capturamos el rol para evitar repetir la comprobación
+    $rol_usuario = $_SESSION['user_rol'] ?? ''; 
+    ?>
+
     <div class="row g-4">
         
         <div class="col-md-6 col-lg-3">
@@ -64,6 +69,7 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
             </a>
         </div>
 
+        <?php if ($rol_usuario === 'administrador'): ?>
         <div class="col-md-6 col-lg-3">
             <a href="../reports/index.php" class="card card-dashboard h-100 bg-dark">
                 <div class="card-body text-center p-4">
@@ -75,7 +81,9 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
                 </div>
             </a>
         </div>
+        <?php endif; ?>
 
+        <?php if ($rol_usuario === 'administrador'): ?>
         <div class="col-md-6 col-lg-3">
             <a href="../directory/index.php" class="card card-dashboard h-100 bg-dark">
                 <div class="card-body text-center p-4">
@@ -87,6 +95,7 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
                 </div>
             </a>
         </div>
+        <?php endif; ?>
 
         <div class="col-md-6 col-lg-3">
             <a href="../inventory/index.php" class="card card-dashboard h-100 bg-dark">
@@ -104,10 +113,10 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
             <div class="card card-dashboard h-100 bg-dark opacity-75" style="border-style: dashed;">
                 <div class="card-body text-center p-4">
                     <div class="icon-box mb-3">
-                        <i class="bi bi-box-seam"></i>
+                        <i class="bi bi-clock"></i> 
                     </div>
-                    <h5 class="fw-bold text-white">Proximo modulos</h5>
-                    <p class="small text-muted">Proximamente mas modulos.</p>
+                    <h5 class="fw-bold text-white">Próximo Módulo</h5>
+                    <p class="small text-muted">Proximamente más módulos.</p>
                     <span class="badge bg-secondary text-dark mt-2">Próximamente</span>
                 </div>
             </div>
@@ -122,7 +131,7 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
                         <small class="text-muted">Gestiona tu sesión</small>
                     </div>
                     <div>
-                        <a href="../../controllers/auth/logout.php" class="btn btn-outline-danger">
+                        <a href="../../controllers/auth/logout.php" onclick="confirmarSalida(event)" class="btn btn-outline-danger">
                             <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión Segura
                         </a>
                     </div>

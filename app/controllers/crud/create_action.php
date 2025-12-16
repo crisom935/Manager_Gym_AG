@@ -13,15 +13,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
 
     // 2. Recibir Datos Financieros
     // Usamos floatval para asegurar que sean números (si vienen vacíos serán 0)
-    $monto_efectivo      = floatval($_POST['monto_efectivo']);
-    $monto_tarjeta       = floatval($_POST['monto_tarjeta']);
-    $monto_transferencia = floatval($_POST['monto_transferencia']); 
-
-    // Sumamos los 3 montos para el total real
+    $monto_efectivo          = floatval($_POST['monto_efectivo']);
+    $monto_tarjeta           = floatval($_POST['monto_tarjeta']);
+    $monto_transferencia     = floatval($_POST['monto_transferencia']); 
+    
+    // INICIO CAMBIO: Capturar el monto de la inscripción
+    $monto_inscripcion       = floatval($_POST['monto_inscripcion']);
+    // FIN CAMBIO
+    
+    // Sumamos los 3 montos para el total real (el que pagó el cliente)
+    // NOTA: Asumimos que total_real ya incluye el monto de la inscripción gracias a la lógica JS.
     $total_real = $monto_efectivo + $monto_tarjeta + $monto_transferencia;
 
     // 3. Calcular Fecha de Vencimiento ($f_fin)
-    // Esto faltaba en tu código y es necesario para la base de datos
     $fecha_inicio = new DateTime($f_ini);
     if (stripos($plan, 'Semanal') !== false) {
         $fecha_inicio->modify('+7 days');
@@ -33,12 +37,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
     // 4. Inserción en Base de Datos
     if (!empty($nombres) && !empty($plan)) {
         try {
-            // AQUI FALTABA EL "try {"
             $pdo->beginTransaction();
 
+            // INICIO CAMBIO: Se añade 'inscripcion' a la lista de columnas
             $sql = "INSERT INTO tb_clientes 
-                    (nombre_cliente, plan_suscripcion, correo, telefono, fecha_inscripcion, fecha_vencimiento, pago_efectivo, pago_tarjeta, pago_transferencia, total_pagado) 
-                    VALUES (:nombre, :plan, :correo, :tel, :fini, :ffin, :efec, :tarj, :trans, :total)";
+                    (nombre_cliente, plan_suscripcion, correo, telefono, fecha_inscripcion, fecha_vencimiento, pago_efectivo, pago_tarjeta, pago_transferencia, total_pagado, inscripcion) 
+                    VALUES (:nombre, :plan, :correo, :tel, :fini, :ffin, :efec, :tarj, :trans, :total, :inscripcion)";
+            // FIN CAMBIO
             
             $stmt = $pdo->prepare($sql);
 
@@ -48,28 +53,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
                     // LÓGICA FINANCIERA:
                     // Solo asignamos el dinero al primer registro (Titular index 0)
                     if ($index === 0) {
-                        $pago_e   = $monto_efectivo;
-                        $pago_t   = $monto_tarjeta;
-                        $pago_tr  = $monto_transferencia;
-                        $pago_tot = $total_real;
+                        $pago_e     = $monto_efectivo;
+                        $pago_t     = $monto_tarjeta;
+                        $pago_tr    = $monto_transferencia;
+                        $pago_tot   = $total_real;
+                        // INICIO CAMBIO: Asignamos el monto de la inscripción al titular
+                        $monto_ins  = $monto_inscripcion; 
+                        // FIN CAMBIO
                     } else {
-                        $pago_e   = 0;
-                        $pago_t   = 0;
-                        $pago_tr  = 0;
-                        $pago_tot = 0;
+                        $pago_e     = 0;
+                        $pago_t     = 0;
+                        $pago_tr    = 0;
+                        $pago_tot   = 0;
+                        // INICIO CAMBIO: Los acompañantes no tienen monto de inscripción
+                        $monto_ins  = 0; 
+                        // FIN CAMBIO
                     }
 
+                    // Ejecutar la inserción
                     $stmt->execute([
-                        ':nombre' => trim($nombre_cliente),
-                        ':plan'   => $plan,
-                        ':correo' => $email,
-                        ':tel'    => $tel,
-                        ':fini'   => $f_ini,
-                        ':ffin'   => $f_fin,
-                        ':efec'   => $pago_e,
-                        ':tarj'   => $pago_t,
-                        ':trans'  => $pago_tr,
-                        ':total'  => $pago_tot
+                        ':nombre'   => trim($nombre_cliente),
+                        ':plan'     => $plan,
+                        ':correo'   => $email,
+                        ':tel'      => $tel,
+                        ':fini'     => $f_ini,
+                        ':ffin'     => $f_fin,
+                        ':efec'     => $pago_e,
+                        ':tarj'     => $pago_t,
+                        ':trans'    => $pago_tr,
+                        ':total'    => $pago_tot,
+                        // INICIO CAMBIO: Se añade el binding del nuevo parámetro
+                        ':inscripcion' => $monto_ins
+                        // FIN CAMBIO
                     ]);
                 }
             }

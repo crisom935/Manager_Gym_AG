@@ -5,7 +5,7 @@ session_start();
 // 1. Verificar que la solicitud sea por método POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 2. Incluir la conexión (CORREGIDO)
+    // 2. Incluir la conexión (CORREGIDO - LÍNEA LIMPIA)
     // Usamos ../ para subir niveles en las carpetas de tu compu
     require_once '../../../config/database.php';
 
@@ -24,7 +24,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 5. Preparar y ejecutar la consulta
     try {
-        $sql = "SELECT id, username, email, password FROM tb_usuarios WHERE email = ?"; 
+        // CAMBIO: Incluir el campo 'rol' en la consulta SQL
+        $sql = "SELECT id, username, email, password, rol FROM tb_usuarios WHERE email = ?"; 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$email]);
         
@@ -40,6 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_username'] = $user['username'];
                 $_SESSION['user_email'] = $user['email'];
+                // CAMBIO: Guardar el rol del usuario en la sesión
+                $_SESSION['user_rol'] = $user['rol']; 
                 $_SESSION['logged_in'] = true;
 
                 // 9. Redirigir al Dashboard (CORREGIDO - Ruta absoluta de navegador)

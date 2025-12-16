@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../controllers/auth/auth_check.php';
+check_auth_and_role('administrador');
 include_once '../templates/header.php'; 
 ?>
 

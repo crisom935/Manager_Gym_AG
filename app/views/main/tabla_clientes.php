@@ -48,6 +48,14 @@ require_once '../../controllers/auth/auth_check.php';
 
                         <hr class="border-secondary opacity-25">
 
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Cargo de Inscripción</label>
+                            <select name="monto_inscripcion" id="selectInscripcion" class="form-select" onchange="ajustarInputsPago()">
+                                <option value="0" selected>No Cobrar (GRATIS)</option>
+                                <option value="150">Cobrar Inscripción ($150)</option>
+                            </select>
+                        </div>
+
                         <div class="bg-dark p-3 rounded mb-3 border border-secondary">
                             <h6 class="text-white mb-3"><i class="bi bi-cash-coin me-2"></i>Cobro</h6>
                             <div class="row">
@@ -126,7 +134,6 @@ require_once '../../controllers/auth/auth_check.php';
                                     <th>Plan</th>        
                                     <th>Contacto</th>    
                                     <th>Vencimiento</th>
-                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

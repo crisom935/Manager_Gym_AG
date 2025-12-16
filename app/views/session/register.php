@@ -2,7 +2,7 @@
 // 1. Seguridad: Solo usuarios logueados pueden crear cuentas nuevas
 session_start();
 require_once '../../controllers/auth/auth_check.php';
-
+check_auth_and_role('administrador'); // SOLO Administradores pueden acceder a esta vista
 include_once '../templates/header.php';
 ?> 
 
@@ -53,6 +53,17 @@ include_once '../templates/header.php';
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
                                     <input type="email" class="form-control" name="email" placeholder="correo@empresa.com" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-muted text-uppercase fw-bold">Rol de Usuario</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
+                                    <select class="form-select" name="rol" required>
+                                        <option value="empleado" selected>Empleado</option>
+                                        <option value="administrador">Administrador</option>
+                                    </select>
                                 </div>
                             </div>
 
