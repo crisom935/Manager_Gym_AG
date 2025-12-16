@@ -89,6 +89,19 @@ require_once '../../controllers/auth/auth_check.php';
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                        <label for="descuento" class="form-label text-white">Descuento (MXN)</label>
+                        <input type="number" 
+                            step="0.01" 
+                            min="0" 
+                            class="form-control" 
+                            id="descuento" 
+                            name="descuento" 
+                            value="0.00" 
+                            placeholder="0.00">
+                        <div class="form-text text-muted">Monto del descuento aplicado (se resta del total).</div>
+                        </div>
+
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label small text-muted">Teléfono</label>

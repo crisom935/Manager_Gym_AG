@@ -16,6 +16,7 @@ $(document).ready(function() {
             { data: 'id_cliente', render: function(data) { return `<span class="fw-bold text-muted">#${data}</span>`; } },
             
             // COLUMNA 1: ESTADO
+            // COLUMNA 1: ESTADO
             { 
                 data: null, 
                 render: function (data, type, row) {
@@ -23,12 +24,26 @@ $(document).ready(function() {
                     const vence = new Date(row.fecha_vencimiento);
                     hoy.setHours(0,0,0,0);
                     vence.setHours(0,0,0,0);
-                    // Esto extiende la validez un día más para cubrir el día de vencimiento
-                    vence.setDate(vence.getDate() + 1); 
+                    
+                    // Calculamos la diferencia en milisegundos
+                    const diffTime = vence.getTime() - hoy.getTime();
+                    // Calculamos la diferencia en días (días restantes)
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-                    return (vence >= hoy) 
-                        ? '<span class="badge rounded-pill text-bg-success" style="font-size: 0.8em;">ACTIVO</span>'
-                        : '<span class="badge rounded-pill text-bg-danger" style="font-size: 0.8em;">VENCIDO</span>';
+                    let badge;
+
+                    if (diffDays < 0) {
+                        // VENCIDO (Días < 0)
+                        badge = '<span class="badge rounded-pill text-bg-danger" style="font-size: 0.8em;">VENCIDO</span>';
+                    } else if (diffDays <= 2) {
+                        // POR VENCER (0, 1 o 2 días restantes)
+                        badge = '<span class="badge rounded-pill text-bg-warning" style="font-size: 0.8em; color: #000 !important;">POR VENCER</span>';
+                    } else {
+                        // ACTIVO (Días > 2)
+                        badge = '<span class="badge rounded-pill text-bg-success" style="font-size: 0.8em;">ACTIVO</span>';
+                    }
+
+                    return badge;
                 }
             },
             
@@ -41,7 +56,7 @@ $(document).ready(function() {
                 }
             },
             
-            // COLUMNA 3: PLAN Y PAGO (MODIFICADA para incluir Transferencia)
+            // COLUMNA 3: PLAN Y PAGO (MODIFICADA para incluir Transferencia y Descuento)
             { 
                 data: null, 
                 render: function(data, type, row) {
@@ -49,9 +64,9 @@ $(document).ready(function() {
                     
                     // Convertimos a número para asegurar
                     let total = parseFloat(row.total_pagado);
+                    let descuento = parseFloat(row.descuento); // <-- NUEVO: Capturamos el descuento
                     let efectivo = parseFloat(row.pago_efectivo);
                     let tarjeta = parseFloat(row.pago_tarjeta);
-                    // NUEVO: Transferencia
                     let transferencia = parseFloat(row.pago_transferencia); 
 
                     if (total > 0) {
@@ -61,9 +76,10 @@ $(document).ready(function() {
                         let detalle = [];
                         if(efectivo > 0) detalle.push(`Efe: $${efectivo}`);
                         if(tarjeta > 0) detalle.push(`Tar: $${tarjeta}`);
-                        // NUEVO: Añadimos Transferencia al detalle si es > 0
                         if(transferencia > 0) detalle.push(`Transf: $${transferencia}`); 
-                        
+                        // NUEVO: Añadimos el descuento al detalle si es > 0
+                        if(descuento > 0) detalle.push(`<span class="text-warning">Desc: $${descuento.toFixed(2)}</span>`); 
+
                         return `<div>${badge}</div>${infoPago}<div style="font-size:0.7em; color:#888;">${detalle.join(' / ')}</div>`;
                     } else {
                         // Es Acompañante
