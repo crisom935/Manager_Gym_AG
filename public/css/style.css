@@ -1,0 +1,450 @@
+/* --- Fuente Global (Se mantiene igual) --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* =========================================
+   =========== COLORES DEL TEMA ============
+   =========================================
+   Rojo Principal: #E62429
+   Fondo Negro: #000000
+   Fondo Tarjetas Dark: #1A1A1A
+   Texto Claro: #FFFFFF / #E0E0E0
+   ========================================= */
+
+/* --- Estructura Principal --- */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    /* CAMBIO: Fondo negro puro y quitamos la imagen de fondo anterior */
+    background-color: #000000;
+    background-image: none; /* Si quieres una textura oscura, ponla aquí */
+    color: #ffffff; /* Texto base blanco */
+}
+
+/* --- MEJORAS DE ESPACIADO --- */
+main {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 120px); 
+    padding-top: 120px;
+    padding-bottom: 60px;
+    transition: padding 0.3s ease;
+}
+
+/* --- Corrección para INDEX (Hero Section) --- */
+.hero-section {
+    margin-top: -120px;
+    padding-top: 120px;
+    min-height: 100vh;
+    position: relative;
+    /* CAMBIO: Asegúrate de que esta imagen combine con el tema oscuro, 
+       o usa un degradado negro/rojo si no tienes imagen */
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/proyectos/ClientManager/public/images/ecovision-bg.jpg') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    transition: margin 0.3s ease, padding 0.3s ease;
+}
+
+.hero-section .overlay {
+    position: absolute;
+    inset: 0;
+    /* CAMBIO: Overlay más oscuro para que resalte el texto */
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    padding: 20px;
+}
+
+/* --- Tarjetas (Cards) --- */
+/* Se unificaron los estilos de tarjeta aquí */
+.card {
+    /* CAMBIO: Fondo oscuro para las tarjetas en lugar de blanco */
+    background: #1A1A1A;
+    color: #e0e0e0; /* Texto ligeramente gris claro para no cansar la vista */
+    border: 1px solid #333333; /* Borde sutil */
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Sombra más fuerte */
+    backdrop-filter: none; /* Quitamos el blur en tema oscuro sólido */
+}
+
+/* Cabecera de tarjeta personalizada (Donde dice "Nuevo Cliente", etc.) */
+.card-header-custom {
+    /* CAMBIO: Usamos el ROJO del logo en lugar del gris */
+    background-color: #E62429; 
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 15px 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+/* Ajuste para el texto muted dentro de las cards oscuras */
+.card .text-muted {
+    color: #aaa !important;
+}
+
+
+/* --- Navbar --- */
+.eco-navbar {
+    /* CAMBIO: Negro sólido con un borde rojo inferior para acento */
+    background: #000000;
+    border-bottom: 2px solid #E62429;
+    box-shadow: 0 4px 20px rgba(230, 36, 41, 0.2); /* Sombra roja sutil */
+    padding: 15px 0;
+    transition: padding 0.3s ease;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    /* Opcional: hacer que el logo en texto también sea rojo */
+    /* color: #E62429 !important; */
+}
+
+.navbar-nav .nav-link {
+    color: #e0e0e0 !important; /* Blanco no tan brillante */
+    font-weight: 500;
+    margin: 0 10px;
+    position: relative;
+    transition: all 0.3s;
+    text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.5px;
+}
+
+.navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+    /* CAMBIO: Hover en rojo */
+    color: #E62429 !important;
+    transform: translateY(-2px);
+}
+/* Ajuste para el icono del toggle en móvil */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+
+/* --- Footer --- */
+.eco-footer {
+    /* CAMBIO: Negro sólido */
+    background: #000000;
+    color: #e0e0e0;
+    border-top: 2px solid #E62429; /* Borde rojo superior */
+}
+
+.eco-footer a {
+    color: #E62429; /* Enlaces en rojo */
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.eco-footer a:hover {
+    color: #ff4f54; /* Rojo más claro al pasar el mouse */
+    text-decoration: underline;
+}
+.eco-footer h5, .eco-footer h6 {
+    color: #ffffff !important; /* Títulos en blanco */
+    letter-spacing: 1px;
+}
+.eco-footer .opacity-75 {
+     opacity: 1 !important; color: #aaa; /* Ajuste de legibilidad */
+}
+
+
+/* --- Botones Genéricos --- */
+.btn-custom {
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+    margin: 5px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+/* CAMBIO: Reemplazo de colores grises por variantes de rojo/negro */
+.btn-custom.primary { background-color: #E62429; color: white; border: none;}
+.btn-custom.primary:hover { background-color: #c41c20; box-shadow: 0 0 15px rgba(230, 36, 41, 0.6); }
+
+.btn-custom.secondary { background-color: #333333; color: white; border: 1px solid #555; }
+.btn-custom.secondary:hover { background-color: #555555; border-color: #777;}
+
+.btn-custom:hover { transform: scale(1.02); }
+
+
+/* --- Botón Principal Específico (Del formulario) --- */
+.btn-primary-custom {
+    /* CAMBIO: Usamos el ROJO vibrante */
+    background-color: #E62429;
+    border-color: #E62429;
+    color: white;
+    border-radius: 50px;
+    padding: 10px 25px;
+    transition: 0.3s;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary-custom:hover {
+    /* Rojo un poco más oscuro para efecto hover */
+    background-color: #c41c20;
+    border-color: #c41c20;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230, 36, 41, 0.4);
+}
+
+/* ==========================================================
+===========      ESTILOS DATATABLE DARK MODE      ===========
+   ========================================================== */
+
+.dataTables_wrapper .row {
+    margin-bottom: 15px;
+}
+
+/* Etiquetas de información del Datatable (Mostrar X registros...) */
+.dataTables_wrapper .dataTables_length, 
+.dataTables_wrapper .dataTables_filter, 
+.dataTables_wrapper .dataTables_info, 
+.dataTables_wrapper .dataTables_processing, 
+.dataTables_wrapper .dataTables_paginate {
+    color: #e0e0e0 !important;
+}
+
+/* --- Inputs y Selects (Modo Oscuro) --- */
+/* Esto afecta tanto al buscador de la tabla como a los inputs del formulario de registro */
+.dataTables_filter input,
+.dataTables_length select,
+.form-control, 
+.form-select {
+    /* CAMBIO: Fondo oscuro, texto claro, borde sutil */
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    border: 1px solid #444444 !important;
+    border-radius: 8px !important; /* Un poco menos redondeado para look más rudo */
+    padding: 8px 15px !important;
+    outline: none;
+}
+/* Placeholder del formulario */
+.form-control::placeholder {
+    color: #888;
+}
+
+/* Foco en los inputs (Cuando haces clic) */
+.dataTables_filter input:focus, 
+.form-control:focus, 
+.form-select:focus {
+    /* CAMBIO: Borde y sombra ROJA */
+    border-color: #E62429 !important;
+    box-shadow: 0 0 0 0.2rem rgba(230, 36, 41, 0.25) !important;
+}
+
+/* Override para el texto de los labels en el formulario */
+.form-label.text-muted {
+    color: #cccccc !important; /* Hacerlos más legibles */
+    font-weight: 500;
+}
+
+/* --- Paginación (Modo Rojo) --- */
+.page-item.active .page-link {
+    /* CAMBIO: Fondo ROJO para la página activa */
+    background-color: #E62429 !important;
+    border-color: #E62429 !important;
+    color: white !important;
+}
+.page-link {
+    /* CAMBIO: Fondo oscuro y texto rojo para páginas inactivas */
+    background-color: #2a2a2a !important;
+    border-color: #444444 !important;
+    color: #E62429 !important;
+}
+.page-link:hover {
+    background-color: #444 !important;
+    color: #ff4f54 !important;
+}
+.page-item.disabled .page-link {
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
+    color: #666 !important;
+}
+
+/* --- Estilos de la Tabla en sí (Modo Oscuro) --- */
+table.dataTable {
+    width: 100% !important;
+    margin: 0 auto;
+    clear: both;
+    border-collapse: collapse !important;
+    border-spacing: 0;
+    color: #e0e0e0; /* Texto de la tabla claro */
+}
+
+/* Encabezado de la tabla */
+table.dataTable thead th {
+    background-color: #111111; /* Encabezado casi negro */
+    color: #E62429; /* Texto del encabezado en ROJO */
+    border-bottom: 2px solid #E62429 !important;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+/* Filas de la tabla */
+table.dataTable tbody tr {
+    background-color: #1A1A1A !important; /* Fondo de fila oscuro */
+}
+
+/* Filas alternas (Striped) para mejor lectura */
+.table-striped>tbody>tr:nth-of-type(odd)>* {
+    --bs-table-accent-bg: #222222; /* Un poco más claro que el fondo base */
+    color: #e0e0e0;
+}
+/* Bordes de las celdas */
+.table-bordered>:not(caption)>*>* {
+    border-color: #333333;
+}
+
+/* Hover sobre las filas */
+table.dataTable tbody tr:hover {
+    background-color: #333333 !important; /* Resalte al pasar el mouse */
+    cursor: default;
+}
+
+/* Badges (Etiquetas de estado/plan) */
+.badge.bg-secondary {
+    background-color: #444 !important; /* Gris oscuro en lugar de gris claro */
+    color: #fff;
+    border: 1px solid #666;
+}
+/* Badges de estado (Activo/Vencido) - Asegurar contraste */
+.text-bg-success { background-color: #198754 !important; }
+.text-bg-danger { background-color: #dc3545 !important; }
+
+
+/* ==========================================================
+===========           MEDIA QUERIES (MÓVIL)       ===========
+   ========================================================== */
+
+@media (max-width: 991px) {
+    main { padding-top: 90px; }
+    .eco-navbar { padding: 10px 0; }
+    .hero-section { margin-top: -90px; padding-top: 90px; }
+    .hero-content h1 { font-size: 2.5rem; }
+
+    .navbar-collapse {
+        /* CAMBIO: Fondo del menú móvil negro sólido */
+        background: #000000;
+        padding: 20px;
+        border-radius: 0 0 15px 15px;
+        margin-top: 10px;
+        border: 1px solid #333;
+        border-top: none;
+    }
+    
+    .navbar-nav .nav-link {
+        margin: 5px 0;
+        text-align: center;
+        border-bottom: 1px solid #222; /* Separador sutil */
+        padding-bottom: 10px;
+    }
+    /* Botones de sesión en móvil */
+    .navbar-nav .btn { width: 100%; margin-top: 10px; }
+
+    /* Centrar elementos de la tabla en móvil */
+    div.dataTables_wrapper div.dataTables_length, 
+    div.dataTables_wrapper div.dataTables_filter, 
+    div.dataTables_wrapper div.dataTables_info, 
+    div.dataTables_wrapper div.dataTables_paginate {
+        text-align: center;
+        margin-top: 10px;
+    }
+}
+
+/* ARREGLOS RESPONSIVE PARA DATATABLES */
+@media (max-width: 768px) {
+    div.dataTables_wrapper div.dataTables_filter {
+        text-align: left !important;
+        margin-top: 0.5rem;
+    }
+    div.dataTables_wrapper div.dataTables_filter input {
+        width: 100% !important;
+        margin-left: 0 !important;
+        display: block;
+    }
+    div.dataTables_wrapper div.dataTables_length {
+        text-align: left !important;
+    }
+}
+
+/* Scroll Horizontal en Tablas */
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+    /* Scrollbar estilo dark */
+    scrollbar-color: #E62429 #1A1A1A;
+    scrollbar-width: thin;
+}
+/* Estilo para navegadores basados en Webkit (Chrome, Safari) */
+.table-responsive-wrapper::-webkit-scrollbar { height: 8px; }
+.table-responsive-wrapper::-webkit-scrollbar-track { background: #1A1A1A; }
+.table-responsive-wrapper::-webkit-scrollbar-thumb { background-color: #E62429; border-radius: 10px; }
+/* --- Ajuste del Logo en Navbar --- */
+.logo-navbar {
+    height: 50px; /* Ajusta este número si lo quieres más grande o chico */
+    width: auto;  /* Mantiene la proporción original */
+    object-fit: contain;
+    /* Si el negro del logo no es EXACTAMENTE igual al del navbar, 
+        esto ayuda a fusionarlo si es un PNG transparente, 
+       pero como es JPG, asegúrate que el fondo de la imagen sea #000000 */
+    vertical-align: middle;
+}
+
+/* Ajuste para que el navbar no se haga gigante con el logo */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+/* Estilos para iconos de redes sociales */
+.social-link {
+    color: #E62429 !important; /* Color Rojo del tema */
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.social-link:hover {
+    color: #ffffff !important; /* Blanco al pasar el mouse */
+    transform: translateY(-3px) scale(1.1); /* Pequeña animación hacia arriba */
+}
+/* --- Estilos Específicos para Login/Registro --- */
+.input-group-text {
+    background-color: #2a2a2a; /* Mismo fondo que el input */
+    border: 1px solid #444;
+    border-right: none; /* Quitamos borde derecho para unir con input */
+    color: #E62429; /* Icono Rojo */
+}
+
+/* Ajuste para que el input se pegue bien al icono */
+.input-group .form-control {
+    border-left: none; 
+}
+.input-group .form-control:focus {
+    z-index: 3; /* Evita que el borde se corte */
+}
+
+/* Link de olvidar contraseña */
+.forgot-link {
+    color: #888;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.forgot-link:hover {
+    color: #E62429;
+}

@@ -1,0 +1,24 @@
+{
+    "name": "Client Manager",
+    "short_name": "Client Manager",
+    "description": "Sistema de gestión de clientes para gym",
+    "start_url": "/proyectos/ClientManager/index.php",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#E62429",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/proyectos/ClientManager/public/img/logo.jpg",
+            "type": "image/jpeg",
+            "sizes": "192x192",
+            "purpose": "any"
+        },
+        {
+            "src": "/proyectos/ClientManager/public/img/logo.jpg",
+            "type": "image/jpeg",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ]
+}
