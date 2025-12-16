@@ -12,8 +12,6 @@ $(document).ready(function() {
         },
         order: [[ 0, "desc" ]], 
         columns: [
-            // ... (Tus columnas anteriores 0 al 5 siguen igual) ...
-            
             // COLUMNA 0: ID
             { data: 'id_cliente', render: function(data) { return `<span class="fw-bold text-muted">#${data}</span>`; } },
             
@@ -25,6 +23,7 @@ $(document).ready(function() {
                     const vence = new Date(row.fecha_vencimiento);
                     hoy.setHours(0,0,0,0);
                     vence.setHours(0,0,0,0);
+                    // Esto extiende la validez un día más para cubrir el día de vencimiento
                     vence.setDate(vence.getDate() + 1); 
 
                     return (vence >= hoy) 
@@ -38,12 +37,13 @@ $(document).ready(function() {
                 data: null, 
                 render: function (data, type, row) {
                     return `<div class="fw-bold text-uppercase">${row.nombre_cliente}</div>
-                            <small class="text-muted" style="font-size: 0.85em;">${row.correo || ''}</small>`;
+                                <small class="text-muted" style="font-size: 0.85em;">${row.correo || '---'}</small>`;
                 }
             },
-            // COLUMNA 3: PLAN Y PAGO
+            
+            // COLUMNA 3: PLAN Y PAGO (MODIFICADA para incluir Transferencia)
             { 
-                data: null, // Usamos null para combinar columnas
+                data: null, 
                 render: function(data, type, row) {
                     let badge = `<span class="badge bg-secondary mb-1">${row.plan_suscripcion}</span>`;
                     
@@ -51,15 +51,18 @@ $(document).ready(function() {
                     let total = parseFloat(row.total_pagado);
                     let efectivo = parseFloat(row.pago_efectivo);
                     let tarjeta = parseFloat(row.pago_tarjeta);
+                    // NUEVO: Transferencia
+                    let transferencia = parseFloat(row.pago_transferencia); 
 
                     if (total > 0) {
-                        // Es Titular
                         let infoPago = `<div class="small fw-bold text-success">$${total.toFixed(2)}</div>`;
                         
-                        // Detalles hover o texto pequeño
+                        // Detalles (Texto pequeño)
                         let detalle = [];
                         if(efectivo > 0) detalle.push(`Efe: $${efectivo}`);
                         if(tarjeta > 0) detalle.push(`Tar: $${tarjeta}`);
+                        // NUEVO: Añadimos Transferencia al detalle si es > 0
+                        if(transferencia > 0) detalle.push(`Transf: $${transferencia}`); 
                         
                         return `<div>${badge}</div>${infoPago}<div style="font-size:0.7em; color:#888;">${detalle.join(' / ')}</div>`;
                     } else {
@@ -68,6 +71,7 @@ $(document).ready(function() {
                     }
                 }
             },
+            
             // COLUMNA 4: CONTACTO
             { data: 'telefono', render: function(data) { return data ? `<i class="bi bi-whatsapp text-success me-1"></i> ${data}` : '---'; } },
 
@@ -78,41 +82,45 @@ $(document).ready(function() {
                     if (!data) return '';
                     const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
                     const partes = data.split('-');
-                    return `<span class="fw-bold small text-uppercase">${partes[2]}/${meses[parseInt(partes[1]) - 1]}/${partes[0]}</span>`;
+                    // Formato DD/Mes/YYYY
+                    return `<span class="fw-bold small text-uppercase">${partes[2]} ${meses[parseInt(partes[1]) - 1]} ${partes[0]}</span>`;
                 }
             },
 
-            // ... dentro de columns: [ ...
+            // COLUMNA 6: ACCIONES (SE MANTIENE AQUÍ, SE OCULTARÁ EN LA VISTA PHP)
+            {
+                data: null,
+                orderable: false,
+                render: function (data, type, row) {
+                    const nombreSeguro = row.nombre_cliente.replace(/'/g, "\\'");
 
-                     // COLUMNA 6: ACCIONES
-                    {
-                        data: null,
-                        orderable: false,
-                        render: function (data, type, row) {
-                            // Nota: Ya no creamos la URL aquí directo en el href
-                            // Llamamos a la función confirmarEliminar con el ID y el Nombre
-                            
-                            // Escapar comillas simples en el nombre para evitar errores de JS
-                            const nombreSeguro = row.nombre_cliente.replace(/'/g, "\\'");
+                    return `
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button class="btn btn-sm btn-outline-warning" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button onclick="confirmarEliminar(${row.id_cliente}, '${nombreSeguro}')" 
+                                    class="btn btn-sm btn-outline-danger" 
+                                    title="Eliminar">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ],
+        // NUEVA PROPIEDAD: Ocultar la Columna 6 (Acciones)
+        columnDefs: [
+            { 
+                targets: 6, // Índice de la columna 'Acciones' (cero basado)
+                visible: false,
+                searchable: false
+            }
+        ]
+    });
+});
 
-                            return `
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <button class="btn btn-sm btn-outline-warning" title="Editar">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-
-                                    <button onclick="confirmarEliminar(${row.id_cliente}, '${nombreSeguro}')" 
-                                            class="btn btn-sm btn-outline-danger" 
-                                            title="Eliminar">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
-                                </div>
-                            `;
-                        }
-                    }
-                ]
-            });
-        });
+// ... (El resto de la función confirmarEliminar se mantiene igual)
 
         /* ==========================================
         FUNCIÓN SWEETALERT2 PARA ELIMINAR
