@@ -49,13 +49,13 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-white-50" href="#" title="Próximamente">
+                        <a class="nav-link text-white-50" href="/proyectos/ClientManager/app/views/inventory/index.php" title="Próximamente">
                             <i class="bi bi-box-seam me-1"></i> Inventario
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-white-50" href="#" title="Próximamente">
+                        <a class="nav-link text-white-50" href="/proyectos/ClientManager/app/views/directory/index.php" title="Próximamente">
                             <i class="bi bi-person-vcard me-1"></i> Directorio
                         </a>
                     </li>

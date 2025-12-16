@@ -77,16 +77,27 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
         </div>
 
         <div class="col-md-6 col-lg-3">
-            <div class="card card-dashboard h-100 bg-dark opacity-75" style="border-style: dashed;">
+            <a href="../directory/index.php" class="card card-dashboard h-100 bg-dark">
                 <div class="card-body text-center p-4">
                     <div class="icon-box mb-3">
                         <i class="bi bi-person-vcard"></i>
                     </div>
                     <h5 class="fw-bold text-white">Directorio</h5>
                     <p class="small text-muted">Gestión detallada de historial de clientes.</p>
-                    <span class="badge bg-secondary text-dark mt-2">Próximamente</span>
                 </div>
-            </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <a href="../inventory/index.php" class="card card-dashboard h-100 bg-dark">
+                <div class="card-body text-center p-4">
+                    <div class="icon-box mb-3">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <h5 class="fw-bold text-white">Inventario</h5>
+                    <p class="small text-muted">Control de stock de aguas, vendas y productos.</p>
+                </div>
+            </a>
         </div>
 
         <div class="col-md-6 col-lg-3">
@@ -95,8 +106,8 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
                     <div class="icon-box mb-3">
                         <i class="bi bi-box-seam"></i>
                     </div>
-                    <h5 class="fw-bold text-white">Inventario</h5>
-                    <p class="small text-muted">Control de stock de aguas, vendas y productos.</p>
+                    <h5 class="fw-bold text-white">Proximo modulos</h5>
+                    <p class="small text-muted">Proximamente mas modulos.</p>
                     <span class="badge bg-secondary text-dark mt-2">Próximamente</span>
                 </div>
             </div>
