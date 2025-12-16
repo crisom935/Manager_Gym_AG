@@ -30,76 +30,62 @@ include_once '../templates/header.php';
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="../../controllers/inventory/stock_action.php" method="POST">
-                    <input type="hidden" name="id_producto" id="modalIdProducto">
+
+            <form action="../../controllers/inventory/stock_action.php" method="POST">
+                <input type="hidden" name="id_producto" id="modalIdProducto">
+                <input type="hidden" name="precio_unitario" id="modalPrecioUnitario"> <h4 class="text-center text-danger mb-4" id="modalNombreProducto">Producto</h4>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted">Tipo de Movimiento</label>
+                    <select name="tipo_movimiento" id="selectTipoMovimiento" class="form-select bg-dark text-white border-secondary" required>
+                        <option value="entrada">📥 Entrada (Resurtir)</option>
+                        <option value="salida" selected>📤 Salida (Venta)</option> </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted">Cantidad</label>
+                    <input type="number" name="cantidad" id="inputCantidad" class="form-control bg-dark text-white border-secondary" min="1" required value="1">
+                </div>
+
+                <div id="paymentSection" style="display: block;">
+                    <h6 class="text-white-50 mt-4 mb-3 border-bottom border-secondary pb-2">Detalle de Pago</h6>
                     
-                    <h4 class="text-center text-danger mb-4" id="modalNombreProducto">Producto</h4>
-
                     <div class="mb-3">
-                        <label class="form-label text-muted">Tipo de Movimiento</label>
-                        <select name="tipo_movimiento" class="form-select bg-dark text-white border-secondary" required>
-                            <option value="entrada">📥 Entrada (Resurtir)</option>
-                            <option value="salida">📤 Salida (Venta/Merma)</option>
-                        </select>
+                        <label class="form-label text-muted">Efectivo</label>
+                        <input type="number" step="0.01" name="pago_efectivo" id="inputEfectivo" value="0.00" class="form-control bg-dark text-white border-secondary" min="0" required>
                     </div>
-
+                    
                     <div class="mb-3">
-                        <label class="form-label text-muted">Cantidad</label>
-                        <input type="number" name="cantidad" class="form-control bg-dark text-white border-secondary" min="1" required>
+                        <label class="form-label text-muted">Tarjeta</label>
+                        <input type="number" step="0.01" name="pago_tarjeta" id="inputTarjeta" value="0.00" class="form-control bg-dark text-white border-secondary" min="0" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label text-muted">Nota (Opcional)</label>
-                        <input type="text" name="nota" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Venta mostrador">
+                        <label class="form-label text-muted">Transferencia</label>
+                        <input type="number" step="0.01" name="pago_transferencia" id="inputTransferencia" value="0.00" class="form-control bg-dark text-white border-secondary" min="0" required>
                     </div>
+                    
+                    <div class="alert alert-danger text-center fw-bold mt-4" id="alertDiferencia" style="display:none;">
+                        Falta por pagar: $<span id="montoFaltante">0.00</span>
+                    </div>
+                    
+                    <div class="alert alert-success text-center fw-bold mt-4">
+                        Total Requerido: $<span id="labelMontoRequerido">0.00</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Nota (Opcional)</label>
+                    <input type="text" name="nota" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Venta mostrador">
+                </div>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary-custom">Guardar Movimiento</button>
-                    </div>
-                </form>
+                <div class="d-grid">
+                    <button type="submit" id="btnGuardarMovimiento" class="btn btn-primary-custom">Guardar Movimiento</button>
+                </div>
+            </form>
             </div>
         </div>
     </div>
 </div>
 
 <?php include_once '../templates/footer.php'; ?>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    fetch('/proyectos/ClientManager/app/api/inventory/get_products.php')
-        .then(res => res.json())
-        .then(json => {
-            const grid = document.getElementById('gridProductos');
-            grid.innerHTML = '';
-            
-            json.data.forEach(p => {
-                grid.innerHTML += `
-                    <div class="col-md-4 col-lg-3">
-                        <div class="card h-100 bg-dark border-secondary shadow-sm">
-                            <div class="card-body text-center">
-                                <div class="mb-3 text-danger display-4">
-                                    <i class="bi ${p.nombre_producto.includes('Agua') ? 'bi-droplet-fill' : 'bi-bandaid-fill'}"></i>
-                                </div>
-                                <h5 class="card-title fw-bold text-white">${p.nombre_producto}</h5>
-                                <h2 class="fw-bold my-3 ${p.stock_actual < 5 ? 'text-danger' : 'text-success'}">${p.stock_actual}</h2>
-                                <p class="text-muted small">En existencia</p>
-                                <div class="badge bg-secondary mb-3">$${p.precio_venta} MXN</div>
-                                <div class="d-grid">
-                                    <button class="btn btn-outline-light btn-sm" onclick="abrirModal(${p.id_producto}, '${p.nombre_producto}')">
-                                        <i class="bi bi-arrow-left-right me-2"></i> Ajustar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        });
-});
-
-function abrirModal(id, nombre) {
-    document.getElementById('modalIdProducto').value = id;
-    document.getElementById('modalNombreProducto').innerText = nombre;
-    new bootstrap.Modal(document.getElementById('modalStock')).show();
-}
-</script>
+<script src="/proyectos/ClientManager/public/js/inventory.js"></script>
