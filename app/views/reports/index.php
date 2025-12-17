@@ -11,8 +11,34 @@ include_once '../templates/header.php';
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-white fw-bold"><i class="bi bi-bar-chart-line-fill text-danger me-2"></i>Reporte Financiero</h2>
-        <span class="badge bg-dark border border-secondary p-2">Últimos 30 días</span>
+        <span class="badge bg-dark border border-secondary p-2" id="reportRangeLabel">Últimos 30 días</span>
     </div>
+
+    <div class="card bg-dark text-white border-secondary mb-5">
+    <div class="card-body">
+        <h5 class="card-title border-bottom border-secondary pb-2 mb-3">Opciones de Corte y Visualización</h5>
+        <div class="row g-3">
+            
+            <div class="col-md-5">
+                <label for="filterMonthYear" class="form-label text-muted">Seleccionar Mes y Año</label>
+                <input type="month" id="filterMonthYear" class="form-control bg-dark text-white border-secondary" required>
+            </div>
+            
+            <div class="col-md-5">
+                <label for="filterGranularity" class="form-label text-muted">Nivel de Detalle</label>
+                <select id="filterGranularity" class="form-select bg-dark text-white border-secondary">
+                    <option value="day" selected>Diario (Detalle del mes)</option>
+                    <option value="week">Semanal (Detalle del mes)</option>
+                    <option value="month">Mensual (Histórico total)</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-danger w-100" id="btnLoadReport">Aplicar Filtro</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
