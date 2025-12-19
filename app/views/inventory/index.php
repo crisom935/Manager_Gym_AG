@@ -26,7 +26,7 @@ include_once '../templates/header.php';
     <div class="modal-dialog">
         <div class="modal-content bg-dark text-white border-secondary">
             <div class="modal-header border-secondary">
-                <h5 class="modal-title fw-bold">Actualizar Stock</h5>
+                <h5 class="modal-title fw-bold">Agregar / Vender</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -38,8 +38,8 @@ include_once '../templates/header.php';
                 <div class="mb-3">
                     <label class="form-label text-muted">Tipo de Movimiento</label>
                     <select name="tipo_movimiento" id="selectTipoMovimiento" class="form-select bg-dark text-white border-secondary" required>
-                        <option value="entrada">📥 Entrada (Resurtir)</option>
-                        <option value="salida" selected>📤 Salida (Venta)</option> </select>
+                        <option value="entrada">Entrada (Resurtir)</option>
+                        <option value="salida" selected>Salida (Venta)</option> </select>
                 </div>
 
                 <div class="mb-3">

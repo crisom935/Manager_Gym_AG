@@ -1,221 +1,215 @@
-let myChart; // Variable global para la instancia de Chart.js
-const API_URL = '/proyectos/ClientManager/app/api/get_finanzas.php'; // Cambia a la ruta correcta si es necesario
+// ¡OJO AQUÍ! Cambiamos a la API específica para este reporte
+const API_URL = '/proyectos/ClientManager/app/api/get_finanzas.php';
+
+let datosGlobales = null; // Almacenamos la respuesta para filtrar sin recargar
 
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. Configuración de filtros al cargar
-    const monthYearInput = document.getElementById('filterMonthYear');
-    const loadButton = document.getElementById('btnLoadReport');
+    const monthInput = document.getElementById('filterMonthYear');
+    const weekSelect = document.getElementById('filterWeek');
     
-    // Establecer mes actual como valor por defecto
+    // Default mes actual
     const today = new Date();
-    const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
-    const currentYear = today.getFullYear();
-    monthYearInput.value = `${currentYear}-${currentMonth}`;
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    monthInput.value = `${yyyy}-${mm}`;
 
-    // 2. Inicializar el evento de carga del reporte
-    loadButton.addEventListener('click', loadReport);
+    // Listeners
+    document.getElementById('btnLoadReport').addEventListener('click', loadReport);
+    
+    // Cuando cambiamos de semana en el select, filtramos localmente (rápido)
+    weekSelect.addEventListener('change', function() {
+        if (datosGlobales) filtrarYRenderizar();
+    });
 
-    // 3. Cargar el reporte inicial al iniciar la página
-    loadReport(); 
+    loadReport();
 });
 
-/**
- * Función principal para cargar y filtrar los datos financieros.
- */
 function loadReport() {
-    const selectedMonthYear = document.getElementById('filterMonthYear').value; // Ej: "2025-11"
-    const granularity = document.getElementById('filterGranularity').value;     // Ej: "day", "week", "month"
+    const mesAnio = document.getElementById('filterMonthYear').value;
+    const container = document.getElementById('reporteContainer');
+    const btn = document.getElementById('btnLoadReport');
+    
+    // Feedback visual
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-danger"></div><p class="mt-2 text-muted">Generando bitácora...</p></div>';
+    btn.disabled = true;
 
-    // Construye la URL con los parámetros de filtro
-    const url = `${API_URL}?mes_anio=${selectedMonthYear}&agrupacion=${granularity}`;
-
-    // Actualiza el indicador de rango
-    document.getElementById('reportRangeLabel').innerText = `Reporte de ${granularity.toUpperCase()} (${selectedMonthYear})`;
-
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                // Si la API devuelve un error (500), lanzamos una excepción
-                throw new Error('La respuesta de la red no fue satisfactoria.');
-            }
-            return response.json();
+    fetch(`${API_URL}?mes_anio=${mesAnio}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Error en la red o archivo no encontrado");
+            return res.json();
         })
-        .then(json => {
-            const datos = json.data;
+        .then(data => {
+            datosGlobales = data; // Guardamos datos en memoria
             
-            if (datos && datos.length > 0) {
-                // Las funciones existentes ahora usan los datos filtrados
-                actualizarKPIs(datos);
-                renderizarGrafica(datos);
-                llenarTabla(datos);
-            } else {
-                document.getElementById('tbodyReportes').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No hay registros para el periodo seleccionado.</td></tr>';
-                // Limpiar KPIs y Gráfica si no hay datos
-                actualizarKPIs([]); 
-                renderizarGrafica([]);
-            }
+            // 1. Llenar Select de Semanas dinámicamente
+            llenarSelectSemanas(data.meta_semanal);
+            
+            // 2. Pintar Header Mensual (siempre fijo)
+            renderTotalesMensuales(data.meta_mensual);
+            
+            // 3. Pintar días y header semanal según filtro
+            filtrarYRenderizar();
         })
-        .catch(error => {
-            console.error('Error al obtener los datos:', error);
-            alert('Error al cargar el reporte. Revisa la consola para más detalles.');
+        .catch(err => {
+            console.error("Error cargando reporte:", err);
+            container.innerHTML = '<div class="alert alert-danger text-center">Error al cargar datos. Verifica que el archivo <b>api/finanzas/get_reporte_ag.php</b> exista y la ruta sea correcta.</div>';
+        })
+        .finally(() => {
+            btn.disabled = false;
         });
 }
 
-// 2. Sumar totales generales
-function actualizarKPIs(datos) {
-    // ... (Tu función actualizadaKPIs, no necesita cambios, solo recibe 'datos')
-    let totalG = 0;
-    let totalE = 0;
-    let totalT = 0;
-    let totalTr = 0;
-
-    datos.forEach(d => {
-        totalG += parseFloat(d.gran_total || 0);
-        totalE += parseFloat(d.total_efectivo || 0);
-        totalT += parseFloat(d.total_tarjeta || 0);
-        totalTr += parseFloat(d.total_transferencia || 0);
-    });
-
-    const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
-
-    document.getElementById('kpiTotal').innerText = fmt.format(totalG);
-    document.getElementById('kpiEfectivo').innerText = fmt.format(totalE);
-    document.getElementById('kpiTarjeta').innerText = fmt.format(totalT);
-    document.getElementById('kpiTransferencia').innerText = fmt.format(totalTr);
+function llenarSelectSemanas(semanas) {
+    const select = document.getElementById('filterWeek');
+    select.innerHTML = '<option value="all">Todo el Mes</option>';
+    
+    if (semanas) {
+        // Iteramos las claves "Semana 1", "Semana 2"...
+        Object.keys(semanas).forEach(key => {
+            select.innerHTML += `<option value="${key}">${key}</option>`;
+        });
+    }
 }
 
-// 3. Tabla HTML
-function llenarTabla(datos) {
-    // ... (Tu función llenarTabla)
-    const tbody = document.getElementById('tbodyReportes');
-    const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+function filtrarYRenderizar() {
+    const semanaSeleccionada = document.getElementById('filterWeek').value; // "all" o "Semana 1"
+    const cardSemanal = document.getElementById('cardSemanal');
+    
+    // validación de seguridad
+    if (!datosGlobales || !datosGlobales.dias) return;
+
+    // 1. Filtrar Días
+    // Si es "all", mostramos todos. Si no, solo los que coincidan con la semana.
+    const diasFiltrados = datosGlobales.dias.filter(dia => {
+        return semanaSeleccionada === 'all' || dia.semana === semanaSeleccionada;
+    });
+
+    // 2. Renderizar Días
+    renderDias(diasFiltrados);
+
+    // 3. Manejar Header Semanal
+    if (semanaSeleccionada !== 'all' && datosGlobales.meta_semanal[semanaSeleccionada]) {
+        // Mostrar datos de esa semana específica
+        const datosSemana = datosGlobales.meta_semanal[semanaSeleccionada];
+        renderTotalesSemanales(datosSemana, semanaSeleccionada);
+        cardSemanal.style.display = 'block';
+    } else {
+        // Si vemos todo el mes, ocultamos el header semanal
+        cardSemanal.style.display = 'none';
+    }
+}
+
+function renderTotalesMensuales(meta) {
+    const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+    
+    // Verificamos que meta exista para no dar error
+    if (!meta) return;
+
+    document.getElementById('mtTotal').innerText = fmt.format(meta.gran_total || 0);
+    document.getElementById('mtPersonas').innerText = meta.total_personas || 0;
+    document.getElementById('mtInsc').innerText = fmt.format(meta.inscripciones || 0);
+    document.getElementById('mtProd').innerText = fmt.format(meta.productos || 0);
+    document.getElementById('mtEfe').innerText = fmt.format(meta.efectivo || 0);
+    document.getElementById('mtTar').innerText = fmt.format(meta.tarjeta || 0);
+    document.getElementById('mtTra').innerText = fmt.format(meta.transferencia || 0);
+}
+
+function renderTotalesSemanales(meta, label) {
+    const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+    
+    if (!meta) return;
+
+    document.getElementById('labelSemanal').innerText = "Resumen " + label;
+    document.getElementById('stTotal').innerText = fmt.format(meta.gran_total || 0);
+    document.getElementById('stPersonas').innerText = meta.total_personas || 0;
+    document.getElementById('stInsc').innerText = fmt.format(meta.inscripciones || 0);
+    document.getElementById('stProd').innerText = fmt.format(meta.productos || 0);
+    document.getElementById('stEfe').innerText = fmt.format(meta.efectivo || 0);
+    document.getElementById('stTar').innerText = fmt.format(meta.tarjeta || 0);
+    document.getElementById('stTra').innerText = fmt.format(meta.transferencia || 0);
+}
+
+function renderDias(dias) {
+    const container = document.getElementById('reporteContainer');
+    const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
     let html = '';
 
-    datos.forEach(d => {
-        // La clave es que 'd.fecha' ahora contiene el período de agrupación (YYYY-MM-DD o YYYY-MM o YYYY-WEEK)
-        // Necesitas adaptar el formato para 'fechaBonita' según la agrupación
-        let fechaBonita;
-        if (d.fecha.length === 10) { // YYYY-MM-DD (Día)
-             let f = d.fecha.split('-');
-             fechaBonita = `${f[2]}/${meses[parseInt(f[1])-1]}/${f[0]}`;
-        } else if (d.fecha.includes('-')) { // YYYY-MM (Mes) o YYYY-WEEK (Semana)
-             fechaBonita = d.fecha; // Muestra el periodo tal cual
-        } else {
-             fechaBonita = d.fecha; // fallback
-        }
-
-
-        let efec = parseFloat(d.total_efectivo || 0).toFixed(2);
-        let tarj = parseFloat(d.total_tarjeta || 0).toFixed(2);
-        let trans = parseFloat(d.total_transferencia || 0).toFixed(2);
-        let total = parseFloat(d.gran_total || 0).toFixed(2);
-        // La API ahora devuelve 'personas' por periodo
-        let personas = parseInt(d.personas || 0); 
-
-        html += `
-            <tr>
-                <td class="fw-bold text-uppercase text-secondary">${fechaBonita}</td>
-                
-                <td class="text-center"><span class="badge bg-secondary rounded-pill">${personas}</span></td>
-                <td class="text-end text-success fw-bold">$${efec}</td>
-                <td class="text-end text-info fw-bold">$${tarj}</td>
-                <td class="text-end text-warning fw-bold">$${trans}</td>
-                <td class="text-end text-white bg-danger bg-opacity-75 fw-bold border-start border-danger">$${total}</td>
-            </tr>
-        `;
-    });
-
-    tbody.innerHTML = html;
-}
-
-
-// 4. Gráfica de Barras Apiladas
-function renderizarGrafica(datos) {
-    // ... (Tu función renderizarGrafica, no necesita cambios grandes, solo recibe 'datos')
-    
-    // Destruir gráfica anterior si existe (evita sobreposición al recargar)
-    const chartStatus = Chart.getChart("graficaFinanzas"); 
-    if (chartStatus != undefined) {
-        chartStatus.destroy();
-    }
-
-    const ctx = document.getElementById('graficaFinanzas').getContext('2d');
-    const datosOrdenados = [...datos]; // Ya vienen ordenados de la API
-
-    const etiquetas = datosOrdenados.map(d => {
-        // Usamos la misma lógica simple que en la tabla para la etiqueta del eje X
-        let fecha = d.fecha;
-        if (fecha.length === 10) { // YYYY-MM-DD
-             let f = fecha.split('-');
-             return `${f[2]}/${f[1]}`;
-        }
-        return fecha;
-    });
-    
-    const dataEfectivo = datosOrdenados.map(d => d.total_efectivo);
-    const dataTarjeta = datosOrdenados.map(d => d.total_tarjeta);
-    const dataTransferencia = datosOrdenados.map(d => d.total_transferencia);
-
-    // Si no hay datos, evita dibujar la gráfica
-    if (datos.length === 0) {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if (dias.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-calendar-x display-4"></i><p class="mt-2">No hay datos para el periodo seleccionado.</p></div>';
         return;
     }
-    
-    // ... (El resto de tu código de Chart.js) ...
-     myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: etiquetas,
-            datasets: [
-                {
-                    label: 'Efectivo',
-                    data: dataEfectivo,
-                    backgroundColor: '#198754',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Tarjeta',
-                    data: dataTarjeta,
-                    backgroundColor: '#0dcaf0',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Transferencia',
-                    data: dataTransferencia,
-                    backgroundColor: '#ffc107',
-                    borderRadius: 4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { stacked: true, ticks: { color: '#aaa' } },
-                y: { 
-                    stacked: true, 
-                    ticks: { color: '#aaa', callback: function(value) { return '$' + value; } },
-                    grid: { color: '#333' }
-                }
-            },
-            plugins: {
-                legend: { labels: { color: '#fff' } },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed.y !== null) {
-                                label += new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(context.parsed.y);
-                            }
-                            return label;
-                        }
-                    }
-                }
-            }
+
+    dias.forEach(dia => {
+        let filasPaquetes = '';
+        let totalPaqDia = 0;
+        
+        // PAQUETES
+        for (const [nombre, valores] of Object.entries(dia.paquetes)) {
+            totalPaqDia += valores.total;
+            filasPaquetes += `<tr>
+                <td class="text-white-50">${nombre}</td>
+                <td class="text-center">${valores.personas}</td>
+                <td class="text-end">${valores.efectivo > 0 ? fmt.format(valores.efectivo) : '-'}</td>
+                <td class="text-end">${valores.tarjeta > 0 ? fmt.format(valores.tarjeta) : '-'}</td>
+                <td class="text-end">${valores.transf > 0 ? fmt.format(valores.transf) : '-'}</td>
+                <td class="text-end fw-bold text-white">${valores.total > 0 ? fmt.format(valores.total) : '$0.00'}</td>
+            </tr>`;
         }
+        
+        // PRODUCTOS
+        let filasProductos = '';
+        let totalProdDia = 0;
+        for (const [nombre, valores] of Object.entries(dia.productos)) {
+            totalProdDia += valores.total;
+            filasProductos += `<tr>
+                <td class="text-white-50">${nombre}</td>
+                <td class="text-center">${valores.cantidad}</td>
+                <td class="text-end">${valores.efectivo > 0 ? fmt.format(valores.efectivo) : '-'}</td>
+                <td class="text-end">${valores.tarjeta > 0 ? fmt.format(valores.tarjeta) : '-'}</td>
+                <td class="text-end">${valores.transf > 0 ? fmt.format(valores.transf) : '-'}</td>
+                <td class="text-end fw-bold text-white">${valores.total > 0 ? fmt.format(valores.total) : '$0.00'}</td>
+            </tr>`;
+        }
+
+        const granTotalDia = totalPaqDia + totalProdDia;
+
+        html += `
+        <div class="card bg-dark border-secondary mb-4 shadow-sm page-break">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h6 class="mb-0 fw-bold text-danger text-uppercase"><i class="bi bi-calendar-day me-2"></i>${dia.fecha_humana}</h6>
+                <span class="badge ${granTotalDia > 0 ? 'bg-success' : 'bg-secondary'}">Total Día: ${fmt.format(granTotalDia)}</span>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="table-responsive"> 
+                    <table class="table table-dark table-sm table-ag mb-0 table-bordered border-secondary">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 180px;">Concepto</th> 
+                                <th class="text-center">Cant.</th> 
+                                <th class="text-end text-success">Efectivo</th>
+                                <th class="text-end text-info">Tarjeta</th>
+                                <th class="text-end text-warning">Transf.</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-active"><td colspan="6" class="fw-bold text-primary ps-3" style="font-size:0.75rem">PAQUETES / INSCRIPCIONES</td></tr>
+                            ${filasPaquetes}
+                            <tr class="table-active"><td colspan="6" class="fw-bold text-secondary ps-3" style="font-size:0.75rem">PRODUCTOS</td></tr>
+                            ${filasProductos}
+                        </tbody>
+                        <tfoot>
+                            <tr class="row-total-dia">
+                                <td colspan="5" class="text-end fw-bold text-uppercase pe-3">Gran Total Diario</td>
+                                <td class="text-end fw-bold text-white bg-danger bg-opacity-50">${fmt.format(granTotalDia)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>`;
     });
+
+    container.innerHTML = html;
 }

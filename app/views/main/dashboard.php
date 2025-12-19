@@ -115,7 +115,7 @@ $username = isset($_SESSION['user_username']) ? htmlspecialchars($_SESSION['user
                     <div class="icon-box mb-3">
                         <i class="bi bi-clock"></i> 
                     </div>
-                    <h5 class="fw-bold text-white">Próximo Módulo</h5>
+                    <h5 class="fw-bold text-white">Próximamente</h5>
                     <p class="small text-muted">Proximamente más módulos.</p>
                     <span class="badge bg-secondary text-dark mt-2">Próximamente</span>
                 </div>
