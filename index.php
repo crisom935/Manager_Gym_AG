@@ -41,7 +41,7 @@ include_once 'app/views/templates/header.php';
                         <img src="/proyectos/ClientManager/public/img/logo.jpg" alt="AG Alan Garcia" class="img-fluid hero-logo rounded-3">
 
                         <h1 class="display-5 fw-bold text-white mb-2">
-                            CLIENT <span class="text-danger">MANAGER</span>
+                            AG <span class="text-danger">CORE</span>
                         </h1>
                         
                         <p class="lead text-white-50 mb-5">
