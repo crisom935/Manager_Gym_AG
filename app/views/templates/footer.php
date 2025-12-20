@@ -2,29 +2,48 @@
     <footer class="eco-footer text-center mt-auto">
         <div class="container py-5">
             <div class="row gy-4">
-                
-                <div class="col-md-4 text-md-start">
-                    <h5 class="fw-bold mb-3 text-white"><i class="bi bi-clipboard2-data"></i> Client Manager</h5>
-                    <p class="small mb-0 opacity-75">
-                        Versión demo del gestionador de clientes para <br>
-                        gimnasios de todo tipo, box, muay thai, gym.
-                    </p>
-                </div>
 
-                <div class="col-md-4">
-                    <h6 class="fw-bold text-uppercase mb-3 text-white">Navegación</h6>
-                    <ul class="list-unstyled small mb-3">
-                        <li class="mb-2"><a href="/proyectos/ClientManager/index.php">Inicio</a></li>
-                        <li class="mb-2"><a href="/proyectos/ClientManager/app/views/main/tabla_clientes.php">Inscripciones</a></li>
-                        <?php if (isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'administrador'): ?>
-                        <li class="mb-2"><a href="/proyectos/ClientManager/app/views/reports/index.php">Reportes</a></li>
-                        <?php endif; ?>
-                        </ul>
+                <div class="col-md-4 d-flex flex-column align-items-start align-items-md-center"> 
+                <h6 class="fw-bold text-uppercase mb-4 text-white d-flex align-items-center">
+                    <span class="border-start border-danger border-4 me-2 ps-1" style="height: 20px;"></span>
+                    Navegación
+                </h6>
+
+                <div class="d-flex flex-column gap-2 mb-4 w-100" style="max-width: 200px;"> 
                     
-                    <button onclick="history.back()" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                        <i class="bi bi-arrow-left me-1"></i> Regresar
-                    </button>
+                    <a href="/proyectos/ClientManager/index.php" class="nav-link-custom">
+                        <i class="bi bi-house-door-fill me-2 text-danger"></i> Inicio
+                    </a>
+
+                    <?php if (isset($_SESSION['user_rol'])): ?>
+                        <?php $rol = $_SESSION['user_rol']; ?>
+
+                        <?php if ($rol === 'empleado' || $rol === 'administrador'): ?>
+                            <a href="/proyectos/ClientManager/app/views/main/tabla_clientes.php" class="nav-link-custom">
+                                <i class="bi bi-people-fill me-2 text-primary"></i> Inscripciones
+                            </a>
+                            <a href="/proyectos/ClientManager/app/views/inventory/index.php" class="nav-link-custom">
+                                <i class="bi bi-box-seam-fill me-2 text-success"></i> Inventario
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if ($rol === 'administrador'): ?>
+                            <a href="/proyectos/ClientManager/app/views/reports/index.php" class="nav-link-custom">
+                                <i class="bi bi-bar-chart-line-fill me-2 text-warning"></i> Reportes Financieros
+                            </a>
+                            <a href="/proyectos/ClientManager/app/views/directory/index.php" class="nav-link-custom">
+                                <i class="bi bi-journal-bookmark-fill me-2 text-info"></i> Directorio
+                            </a>
+                        <?php endif; ?>
+
+                    <?php endif; ?>
                 </div>
+                
+                <button onclick="history.back()" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 opacity-75 hover-opacity-100 w-100" style="max-width: 200px;">
+                    <i class="bi bi-arrow-left me-2"></i> Regresar
+                </button>
+
+            </div>
 
                 <div class="col-md-4 text-md-end">
                     <h6 class="fw-bold text-uppercase mb-3 text-white">Soporte técnico</h6>

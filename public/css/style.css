@@ -448,3 +448,31 @@ table.dataTable tbody tr:hover {
 .forgot-link:hover {
     color: #E62429;
 }
+/* Estilo personalizado para los enlaces del footer */
+.nav-link-custom {
+    text-decoration: none;
+    color: #adb5bd; /* Gris claro (Bootstrap gray-500) */
+    font-size: 0.95rem;
+    padding: 5px 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+/* Efecto al pasar el mouse */
+.nav-link-custom:hover {
+    color: #ffffff; /* Blanco brillante */
+    transform: translateX(8px); /* Se mueve 8px a la derecha */
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* Hacer que los iconos brillen un poco al hover */
+.nav-link-custom:hover i {
+    filter: brightness(1.2);
+}
+
+/* Botón de regresar animado */
+.hover-opacity-100:hover {
+    opacity: 1 !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}

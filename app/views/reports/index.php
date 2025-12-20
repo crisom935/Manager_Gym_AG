@@ -12,7 +12,7 @@ include_once '../templates/header.php';
     <div class="row align-items-center mb-4 gy-3">
         <div class="col-md-6">
             <h2 class="text-white fw-bold mb-0">
-                <i class="bi bi-file-earmark-spreadsheet-fill text-danger me-2"></i>Bitácora AG
+                <i class="bi bi-file-earmark-spreadsheet-fill text-danger me-2"></i>Bitácora de Reportes
             </h2>
         </div>
         
