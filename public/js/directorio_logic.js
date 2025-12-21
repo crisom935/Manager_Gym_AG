@@ -88,7 +88,7 @@ $(document).ready(function() {
                 }
             },
             
-            // 5. DETALLE FINANCIERO (ACTUALIZADO CON CANTIDADES)
+            // 5. DETALLE FINANCIERO
             { 
                 data: null, 
                 render: function(row) {
@@ -127,8 +127,18 @@ $(document).ready(function() {
                     `;
                 }
             },
+
+            // 6. REGISTRADO POR (NUEVO - Insertado aquí)
+            {
+                data: 'registrado_por',
+                render: function(d) {
+                    return `<div class="badge bg-secondary bg-opacity-25 text-light border border-secondary">
+                                <i class="bi bi-person-check-fill me-1"></i>${d}
+                            </div>`;
+                }
+            },
             
-            // 6. FECHAS REGISTRO
+            // 7. FECHAS REGISTRO
             { 
                 data: null, 
                 render: function(row) {
@@ -142,7 +152,7 @@ $(document).ready(function() {
                 }
             },
             
-            // 7. ACCIONES
+            // 8. ACCIONES
             { 
                 data: null,
                 className: 'text-end',

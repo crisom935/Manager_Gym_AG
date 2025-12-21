@@ -28,14 +28,14 @@ include_once '../templates/header.php';
         <div class="card-body">
             <div class="table-responsive">
                 <table id="tablaDirectorio" class="table table-dark table-hover w-100 align-middle" style="font-size: 0.9rem;">
-                    <thead class="table-secondary text-dark">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>Cliente</th>
                             <th>Contacto</th>
                             <th>Plan y Estado</th>
                             <th>Detalle Financiero</th>
-                            <th>Fechas Registro</th>
+                            <th>Registrado Por</th> <th>Fechas</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>

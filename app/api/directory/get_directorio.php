@@ -1,36 +1,34 @@
 <?php
 // app/api/directory/get_directorio.php
 require_once '../../../config/database.php';
-
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    // Usamos COALESCE para que si es null, valga 0
     $sql = "SELECT 
-                id_cliente,
-                nombre_cliente,
-                telefono,
-                correo,
-                plan_suscripcion,
-                fecha_inscripcion,
-                fecha_vencimiento,
-                created_at,
+                c.id_cliente,
+                c.nombre_cliente,
+                c.telefono,
+                c.correo,
+                c.plan_suscripcion,
+                c.fecha_inscripcion,
+                c.fecha_vencimiento,
+                c.created_at,
                 
                 -- Datos Financieros
-                COALESCE(pago_efectivo, 0) as efectivo,
-                COALESCE(pago_tarjeta, 0) as tarjeta,
-                COALESCE(pago_transferencia, 0) as transferencia,
-                
-                -- CORRECCIÓN: Usamos el nombre real de tu columna
-                COALESCE(inscripcion, 0) as costo_inscripcion, 
-                
-                COALESCE(descuento, 0) as descuento,
-                
-                -- Total Pagado
-                (COALESCE(pago_efectivo, 0) + COALESCE(pago_tarjeta, 0) + COALESCE(pago_transferencia, 0)) as total_pagado
-                
-            FROM tb_clientes 
-            ORDER BY id_cliente DESC";
+                COALESCE(c.pago_efectivo, 0) as efectivo,
+                COALESCE(c.pago_tarjeta, 0) as tarjeta,
+                COALESCE(c.pago_transferencia, 0) as transferencia,
+                COALESCE(c.inscripcion, 0) as costo_inscripcion, 
+                COALESCE(c.descuento, 0) as descuento,
+                (COALESCE(c.pago_efectivo, 0) + COALESCE(c.pago_tarjeta, 0) + COALESCE(c.pago_transferencia, 0)) as total_pagado,
+
+                -- AQUÍ TRAEMOS EL USUARIO (username)
+                COALESCE(u.username, 'Sistema') as registrado_por
+
+            FROM tb_clientes c
+            -- JOIN CON USUARIOS
+            LEFT JOIN tb_usuarios u ON c.id_usuario = u.id 
+            ORDER BY c.id_cliente DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute();

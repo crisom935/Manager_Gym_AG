@@ -4,6 +4,10 @@ require_once '../../../config/database.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
     
+    // 0. CAPTURAR USUARIO QUE REGISTRA (ESTO FALTABA)
+    // Intentamos capturar el ID de la sesión. Si no existe, será null.
+    $id_usuario = $_SESSION['user_id'] ?? $_SESSION['id_usuario'] ?? null;
+
     // 1. Recibir Datos Generales
     $plan       = trim($_POST['plan_suscripcion']);
     $email      = trim($_POST['correo']);
@@ -12,18 +16,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
     $nombres    = $_POST['nombres']; // Array de nombres
 
     // 2. Recibir Datos Financieros
-    // Usamos floatval para asegurar que sean números (si vienen vacíos serán 0)
     $monto_efectivo      = floatval($_POST['monto_efectivo']);
     $monto_tarjeta       = floatval($_POST['monto_tarjeta']);
     $monto_transferencia = floatval($_POST['monto_transferencia']); 
     
-    // CAPTURA DEL DESCUENTO (NUEVO)
-    // Aseguramos que sea un número flotante, por defecto 0.00 si no se envía o está vacío.
+    // CAPTURA DEL DESCUENTO
     $monto_descuento     = isset($_POST['descuento']) && is_numeric($_POST['descuento']) ? floatval($_POST['descuento']) : 0.00;
     
     $monto_inscripcion   = floatval($_POST['monto_inscripcion']);
     
-    // Sumamos los 3 montos para el total real pagado por el cliente
+    // Total real pagado
     $total_real = $monto_efectivo + $monto_tarjeta + $monto_transferencia;
 
     // 3. Calcular Fecha de Vencimiento ($f_fin)
@@ -40,39 +42,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
         try {
             $pdo->beginTransaction();
 
-            // MODIFICACIÓN SQL: Añadimos la columna 'descuento'
+            // MODIFICACIÓN SQL: Añadimos 'id_usuario' al INSERT
+            // <--- ¡FÍJATE AQUÍ! Agregamos id_usuario y :id_user
             $sql = "INSERT INTO tb_clientes 
-                    (nombre_cliente, plan_suscripcion, correo, telefono, fecha_inscripcion, fecha_vencimiento, pago_efectivo, pago_tarjeta, pago_transferencia, descuento, total_pagado, inscripcion) 
-                    VALUES (:nombre, :plan, :correo, :tel, :fini, :ffin, :efec, :tarj, :trans, :desc, :total, :inscripcion)";
+                    (id_usuario, nombre_cliente, plan_suscripcion, correo, telefono, fecha_inscripcion, fecha_vencimiento, pago_efectivo, pago_tarjeta, pago_transferencia, descuento, total_pagado, inscripcion) 
+                    VALUES (:id_user, :nombre, :plan, :correo, :tel, :fini, :ffin, :efec, :tarj, :trans, :desc, :total, :inscripcion)";
             
             $stmt = $pdo->prepare($sql);
 
             foreach ($nombres as $index => $nombre_cliente) {
                 if(trim($nombre_cliente) != ""){
                     
-                    // LÓGICA FINANCIERA:
-                    // Solo asignamos los pagos, el descuento y la inscripción al primer registro (Titular index 0)
+                    // LÓGICA FINANCIERA (Solo al titular)
                     if ($index === 0) {
                         $pago_e     = $monto_efectivo;
                         $pago_t     = $monto_tarjeta;
                         $pago_tr    = $monto_transferencia;
                         $pago_tot   = $total_real;
                         $monto_ins  = $monto_inscripcion; 
-                        // NUEVO: Asignamos el descuento
                         $monto_desc = $monto_descuento; 
                     } else {
-                        // Acompañantes van a cero
+                        // Acompañantes en ceros
                         $pago_e     = 0;
                         $pago_t     = 0;
                         $pago_tr    = 0;
                         $pago_tot   = 0;
                         $monto_ins  = 0; 
-                        // NUEVO: Descuento cero para acompañantes
                         $monto_desc = 0; 
                     }
 
                     // Ejecutar la inserción
                     $stmt->execute([
+                        ':id_user'   => $id_usuario, // <--- ¡AQUÍ FALTABA EL DATO!
                         ':nombre'    => trim($nombre_cliente),
                         ':plan'      => $plan,
                         ':correo'    => $email,
@@ -82,7 +83,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
                         ':efec'      => $pago_e,
                         ':tarj'      => $pago_t,
                         ':trans'     => $pago_tr,
-                        // NUEVO: BINDING DEL DESCUENTO
                         ':desc'      => $monto_desc, 
                         ':total'     => $pago_tot,
                         ':inscripcion' => $monto_ins
