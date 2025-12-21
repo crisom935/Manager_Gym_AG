@@ -56,6 +56,19 @@ require_once '../../controllers/auth/auth_check.php';
                             </select>
                         </div>
 
+                        <div class="mb-3">
+                        <label for="descuento" class="form-label text-white">Descuento (MXN)</label>
+                        <input type="number" 
+                            step="0.01" 
+                            min="0" 
+                            class="form-control" 
+                            id="descuento" 
+                            name="descuento" 
+                            value="0.00" 
+                            placeholder="0.00">
+                        <div class="form-text text-muted">Monto del descuento aplicado (se resta del total).</div>
+                        </div>
+
                         <div class="bg-dark p-3 rounded mb-3 border border-secondary">
                             <h6 class="text-white mb-3"><i class="bi bi-cash-coin me-2"></i>Cobro</h6>
                             <div class="row">
@@ -87,19 +100,6 @@ require_once '../../controllers/auth/auth_check.php';
                                     <span class="fw-bold text-white fs-5" id="labelTotal">$0.00</span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                        <label for="descuento" class="form-label text-white">Descuento (MXN)</label>
-                        <input type="number" 
-                            step="0.01" 
-                            min="0" 
-                            class="form-control" 
-                            id="descuento" 
-                            name="descuento" 
-                            value="0.00" 
-                            placeholder="0.00">
-                        <div class="form-text text-muted">Monto del descuento aplicado (se resta del total).</div>
                         </div>
 
                         <div class="row">

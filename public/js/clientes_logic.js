@@ -15,31 +15,34 @@ $(document).ready(function() {
             // COLUMNA 0: ID
             { data: 'id_cliente', render: function(data) { return `<span class="fw-bold text-muted">#${data}</span>`; } },
             
-            // COLUMNA 1: ESTADO
-            // COLUMNA 1: ESTADO
+            // COLUMNA 1: ESTADO ACTUALIZADA
             { 
                 data: null, 
                 render: function (data, type, row) {
                     const hoy = new Date();
-                    const vence = new Date(row.fecha_vencimiento);
+                    // Forzamos la fecha de vencimiento a la zona horaria local para evitar desfases
+                    const fechaVencePartes = row.fecha_vencimiento.split('-');
+                    const vence = new Date(fechaVencePartes[0], fechaVencePartes[1] - 1, fechaVencePartes[2]);
+                    
                     hoy.setHours(0,0,0,0);
                     vence.setHours(0,0,0,0);
                     
-                    // Calculamos la diferencia en milisegundos
                     const diffTime = vence.getTime() - hoy.getTime();
-                    // Calculamos la diferencia en días (días restantes)
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
                     let badge;
 
                     if (diffDays < 0) {
-                        // VENCIDO (Días < 0)
+                        // Ya pasó la fecha
                         badge = '<span class="badge rounded-pill text-bg-danger" style="font-size: 0.8em;">VENCIDO</span>';
+                    } else if (diffDays === 0) {
+                        // Es hoy mismo
+                        badge = '<span class="badge rounded-pill text-bg-info" style="font-size: 0.8em; color: #fff !important; background-color: #fd7e14 !important;">VENCE HOY</span>';
                     } else if (diffDays <= 2) {
-                        // POR VENCER (0, 1 o 2 días restantes)
+                        // Le quedan 1 o 2 días
                         badge = '<span class="badge rounded-pill text-bg-warning" style="font-size: 0.8em; color: #000 !important;">POR VENCER</span>';
                     } else {
-                        // ACTIVO (Días > 2)
+                        // Más de 2 días
                         badge = '<span class="badge rounded-pill text-bg-success" style="font-size: 0.8em;">ACTIVO</span>';
                     }
 

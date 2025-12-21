@@ -19,6 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
     $monto_efectivo      = floatval($_POST['monto_efectivo']);
     $monto_tarjeta       = floatval($_POST['monto_tarjeta']);
     $monto_transferencia = floatval($_POST['monto_transferencia']); 
+    $monto_descuento     = isset($_POST['descuento']) ? floatval($_POST['descuento']) : 0;
+    $monto_inscripcion   = floatval($_POST['monto_inscripcion']);
     
     // CAPTURA DEL DESCUENTO
     $monto_descuento     = isset($_POST['descuento']) && is_numeric($_POST['descuento']) ? floatval($_POST['descuento']) : 0.00;
@@ -27,7 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_guardar'])) {
     
     // Total real pagado
     $total_real = $monto_efectivo + $monto_tarjeta + $monto_transferencia;
-
     // 3. Calcular Fecha de Vencimiento ($f_fin)
     $fecha_inicio = new DateTime($f_ini);
     if (stripos($plan, 'Semanal') !== false) {
