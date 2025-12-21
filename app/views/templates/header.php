@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Manager</title>
+    <title>AG Core</title>
     
     <link rel="icon" type="image/jpeg" href="/proyectos/ClientManager/public/img/logo.jpg">
     <link rel="manifest" href="/proyectos/ClientManager/manifest.json">
@@ -32,7 +32,8 @@
         <div class="collapse navbar-collapse justify-content-end" id="ecoNavbar">
             <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
                 
-                <li class="nav-item"><a class="nav-link" href="/proyectos/ClientManager/index.php">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/proyectos/ClientManager/index.php">
+                    <i class="bi bi-house-door-fill me-1"></i>Inicio</a></li>
                 
                 <?php 
                 // Asegurar que la variable exista para evitar errores

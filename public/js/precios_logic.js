@@ -134,3 +134,12 @@ document.addEventListener("DOMContentLoaded", function() {
         };
     }
 });
+
+// 6. Validación de nombres: solo letras y espacios
+document.addEventListener('input', function (e) {
+    // Verificamos si el input que disparó el evento es uno de los nombres
+    if (e.target && e.target.name === 'nombres[]') {
+        // Reemplazamos cualquier cosa que NO sea letra o espacio
+        e.target.value = e.target.value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/g, '');
+    }
+});

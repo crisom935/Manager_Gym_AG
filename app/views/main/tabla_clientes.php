@@ -43,7 +43,7 @@ require_once '../../controllers/auth/auth_check.php';
 
                         <div id="contenedorNombres" class="mb-3">
                             <label class="form-label small text-muted">Nombre del Cliente (Titular) *</label>
-                            <input type="text" name="nombres[]" class="form-control mb-2" placeholder="Nombre completo" required>
+                            <input type="text" name="nombres[]" class="form-control mb-2" placeholder="Nombre completo" required oninput="this.value = this.value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/g, '')">
                         </div>
 
                         <hr class="border-secondary opacity-25">
@@ -105,7 +105,7 @@ require_once '../../controllers/auth/auth_check.php';
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label small text-muted">Teléfono</label>
-                                <input type="tel" name="telefono" class="form-control" placeholder="81...">
+                                <input type="tel" name="telefono" class="form-control" placeholder="81..." oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="10">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label small text-muted">Email</label>
@@ -161,5 +161,4 @@ require_once '../../controllers/auth/auth_check.php';
 <?php include_once '../templates/footer.php'; ?>
 
 <script src="../../../public/js/clientes_logic.js"></script>
-
 <script src="../../../public/js/precios_logic.js"></script>
