@@ -7,7 +7,16 @@ include_once '../templates/header.php';
 <div style="height: 100px;"></div>
 
 <div class="container my-4">
-    <h2 class="text-white fw-bold mb-4"><i class="bi bi-box-seam text-danger me-2"></i>Inventario</h2>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white fw-bold mb-0"><i class="bi bi-box-seam text-danger me-2"></i>Inventario</h2>
+    
+    <?php if (isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'administrador'): ?>
+        <a href="movimientos.php" class="btn btn-outline-warning">
+            <i class="bi bi-clock-history me-2"></i>Ver Historial
+        </a>
+    <?php endif; ?>
+</div>
 
     <?php if(isset($_SESSION['msg'])): ?>
         <div class="alert alert-<?php echo $_SESSION['msg_type']; ?> alert-dismissible fade show" role="alert">
@@ -33,13 +42,16 @@ include_once '../templates/header.php';
 
             <form action="../../controllers/inventory/stock_action.php" method="POST">
                 <input type="hidden" name="id_producto" id="modalIdProducto">
-                <input type="hidden" name="precio_unitario" id="modalPrecioUnitario"> <h4 class="text-center text-danger mb-4" id="modalNombreProducto">Producto</h4>
+                <input type="hidden" name="precio_unitario" id="modalPrecioUnitario">
+                
+                <h4 class="text-center text-danger mb-4" id="modalNombreProducto">Producto</h4>
 
                 <div class="mb-3">
                     <label class="form-label text-muted">Tipo de Movimiento</label>
                     <select name="tipo_movimiento" id="selectTipoMovimiento" class="form-select bg-dark text-white border-secondary" required>
                         <option value="entrada">Entrada (Resurtir)</option>
-                        <option value="salida" selected>Salida (Venta)</option> </select>
+                        <option value="salida" selected>Salida (Venta)</option> 
+                    </select>
                 </div>
 
                 <div class="mb-3">
@@ -73,6 +85,7 @@ include_once '../templates/header.php';
                         Total Requerido: $<span id="labelMontoRequerido">0.00</span>
                     </div>
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label text-muted">Nota (Opcional)</label>
                     <input type="text" name="nota" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Venta mostrador">

@@ -1,92 +1,89 @@
 <?php
+// app/controllers/inventory/stock_action.php
 session_start();
 require_once '../../../config/database.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    // 1. CAPTURAR USUARIO (Para que salga en el historial)
+    // Ajusta esto si tu variable de sesión tiene otro nombre (ej. $_SESSION['id_usuario'])
+    $id_usuario = $_SESSION['user_id'] ?? $_SESSION['id_usuario'] ?? null; 
+
     $id_producto = $_POST['id_producto'];
-    $tipo        = $_POST['tipo_movimiento']; // 'entrada' o 'salida'
-    $cantidad    = intval($_POST['cantidad']);
-    $nota        = trim($_POST['nota']);
+    $tipo = $_POST['tipo_movimiento'];
+    $cantidad = $_POST['cantidad'];
+    $nota = $_POST['nota'] ?? '';
     
-    // CAPTURA DE CAMPOS DE VENTA (Solo relevantes si $tipo == 'salida')
-    $precio_unitario      = floatval($_POST['precio_unitario'] ?? 0);
-    $pago_efectivo        = floatval($_POST['pago_efectivo'] ?? 0);
-    $pago_tarjeta         = floatval($_POST['pago_tarjeta'] ?? 0);
-    $pago_transferencia   = floatval($_POST['pago_transferencia'] ?? 0);
-    
-    $total_pagado = $pago_efectivo + $pago_tarjeta + $pago_transferencia;
-    
-    if ($cantidad > 0) {
-        try {
-            $pdo->beginTransaction();
+    // Datos monetarios (solo importan si es salida/venta)
+    $efectivo = $_POST['pago_efectivo'] ?? 0;
+    $tarjeta = $_POST['pago_tarjeta'] ?? 0;
+    $transf = $_POST['pago_transferencia'] ?? 0;
+    $total_venta = $efectivo + $tarjeta + $transf;
 
-            // 1. Lógica de Salida (Venta/Merma) y Validaciones
-            if ($tipo == 'salida') {
-                $monto_requerido = $precio_unitario * $cantidad;
-                
-                // VALIDACIÓN DE PAGO (Si el tipo de movimiento es venta, debe cuadrar)
-                // Usamos abs() para comparar flotantes
-                if (abs($total_pagado - $monto_requerido) > 0.01) {
-                    throw new Exception("Error de pago: El total pagado ($" . number_format($total_pagado, 2) . ") no coincide con el total de la venta ($" . number_format($monto_requerido, 2) . ").");
-                }
-                
-                // Validar que haya stock suficiente antes de la salida
-                $check = $pdo->prepare("SELECT stock_actual FROM tb_productos WHERE id_producto = :id");
-                $check->execute([':id' => $id_producto]);
-                $actual = $check->fetchColumn();
+    try {
+        $pdo->beginTransaction();
 
-                if ($actual < $cantidad) {
-                    throw new Exception("No hay suficiente stock para realizar la salida (actual: $actual, solicitada: $cantidad).");
-                }
-            }
+        // A. ACTUALIZAR STOCK ACTUAL (Corrección: usamos 'stock_actual')
+        if ($tipo === 'entrada') {
+            // Sumar al inventario
+            $sqlStock = "UPDATE tb_productos SET stock_actual = stock_actual + :cant WHERE id_producto = :id";
+        } else {
+            // Verificar stock suficiente antes de restar
+            $check = $pdo->prepare("SELECT stock_actual FROM tb_productos WHERE id_producto = ?");
+            $check->execute([$id_producto]);
+            $current = $check->fetchColumn();
             
-            // 2. Actualizar Stock en tb_productos
-            $sqlStock = "";
-            if ($tipo == 'entrada') {
-                $sqlStock = "UPDATE tb_productos SET stock_actual = stock_actual + :cant WHERE id_producto = :id";
-            } else {
-                $sqlStock = "UPDATE tb_productos SET stock_actual = stock_actual - :cant WHERE id_producto = :id";
+            if ($current < $cantidad) {
+                throw new Exception("Stock insuficiente (Tienes: $current, Intentas vender: $cantidad)");
             }
-            
-            $stmtStock = $pdo->prepare($sqlStock);
-            $stmtStock->execute([':cant' => $cantidad, ':id' => $id_producto]);
-
-            // 3. Registrar en Historial (tb_movimientos_inv)
-            $sqlHist = "INSERT INTO tb_movimientos_inv (id_producto, tipo_movimiento, cantidad, nota) VALUES (:id, :tipo, :cant, :nota)";
-            $stmtHist = $pdo->prepare($sqlHist);
-            $stmtHist->execute([':id' => $id_producto, ':tipo' => $tipo, ':cant' => $cantidad, ':nota' => $nota]);
-
-            // 4. REGISTRAR VENTA FINANCIERA (SOLO SI ES SALIDA/VENTA)
-            if ($tipo == 'salida') {
-                $sqlVenta = "INSERT INTO tb_ventas_productos 
-                            (id_producto, cantidad, precio_unitario, fecha_venta, pago_efectivo, pago_tarjeta, pago_transferencia, total_venta)
-                            VALUES (:id, :cant, :precio_u, CURDATE(), :efectivo, :tarjeta, :transferencia, :total)";
-                
-                $stmtVenta = $pdo->prepare($sqlVenta);
-                $stmtVenta->execute([
-                    ':id' => $id_producto,
-                    ':cant' => $cantidad,
-                    ':precio_u' => $precio_unitario,
-                    ':efectivo' => $pago_efectivo,
-                    ':tarjeta' => $pago_tarjeta,
-                    ':transferencia' => $pago_transferencia,
-                    ':total' => $total_pagado
-                ]);
-            }
-
-            $pdo->commit();
-            $_SESSION['msg'] = ($tipo == 'salida' ? 'Venta y m' : 'M') . "ovimiento registrado correctamente.";
-            $_SESSION['msg_type'] = "success";
-
-        } catch (Exception $e) {
-            $pdo->rollBack();
-            $_SESSION['msg'] = "Error: " . $e->getMessage();
-            $_SESSION['msg_type'] = "danger";
+            // Restar del inventario
+            $sqlStock = "UPDATE tb_productos SET stock_actual = stock_actual - :cant WHERE id_producto = :id";
         }
-    } else {
-        $_SESSION['msg'] = "La cantidad debe ser mayor a cero.";
+        
+        $stmtS = $pdo->prepare($sqlStock);
+        $stmtS->execute([':cant' => $cantidad, ':id' => $id_producto]);
+
+        // B. GUARDAR MOVIMIENTO (Historial)
+        $sqlMov = "INSERT INTO tb_movimientos_inv 
+                    (id_producto, id_usuario, tipo_movimiento, cantidad, fecha_movimiento, nota) 
+                    VALUES (:prod, :user, :tipo, :cant, NOW(), :nota)";
+        
+        $stmtM = $pdo->prepare($sqlMov);
+        $stmtM->execute([
+            ':prod' => $id_producto,
+            ':user' => $id_usuario, // Guardamos quién hizo el movimiento
+            ':tipo' => $tipo,
+            ':cant' => $cantidad,
+            ':nota' => $nota
+        ]);
+
+        // C. SI ES VENTA, GUARDAR EN tb_ventas_productos (Para reporte financiero)
+        if ($tipo === 'salida') {
+            $sqlVenta = "INSERT INTO tb_ventas_productos 
+                        (id_producto, cantidad, total_venta, pago_efectivo, pago_tarjeta, pago_transferencia, fecha_venta)
+                        VALUES (:prod, :cant, :total, :efe, :tar, :tra, NOW())";
+            $stmtV = $pdo->prepare($sqlVenta);
+            $stmtV->execute([
+                ':prod' => $id_producto,
+                ':cant' => $cantidad,
+                ':total' => $total_venta,
+                ':efe' => $efectivo,
+                ':tar' => $tarjeta,
+                ':tra' => $transf
+            ]);
+        }
+
+        $pdo->commit();
+        $_SESSION['msg'] = "Movimiento registrado correctamente.";
+        $_SESSION['msg_type'] = "success";
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['msg'] = "Error: " . $e->getMessage();
         $_SESSION['msg_type'] = "danger";
     }
+
+    header('Location: ../../views/inventory/index.php');
+    exit;
 }
-header("Location: ../../views/inventory/index.php");
-exit;
+?>
